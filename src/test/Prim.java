@@ -3,8 +3,7 @@ package test;
 import java.lang.*;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Stack;
 
 class MST {
 
@@ -112,102 +111,49 @@ class MST {
         printMST(pi, graph, tree);
     }
 
-    public static void addEdge(int[][] tree, int v1, int v2, int weight, int[] pi) {
+    public static void addEdge(int[][] tree, int v1, int v2, int weight) {
         tree[v1][v2] = weight;
         tree[v2][v1] = weight;
-        pi[v1] = v2;
-        pi[v2] = v1;
     }
 
-    int[] count = new int[V];
-
-    class edge{
-        int v1, v2, weight;
-
-        public edge(int v1, int v2) {
-            this.v1 = v1;
-            this.v2 = v2;
+    Stack<Integer> cycleStack= new Stack<>();
+    Boolean flag = false;
+    Boolean findCycle(int[][] tree,int v1, int v2, Boolean flag) {
+        if (v1 == v2) {
+            return false;
         }
-    }
-
-    List<edge> theCycle = new ArrayList<>();
-
-    void getCycle(int[] pi, Boolean[] visited, int start) {
-        while(start<pi.length) {
-            if (pi[start] != -1) {
-                visited[start] = true;
-            }
-            if (pi[start]!=-1 && theCycle.contains(new edge(start,pi[start]))){
+        int count = 0;
+        for (int i = 0; i < tree[v1].length; i++) {
+            if (flag){
                 break;
             }
-            if (visited[start]){
-                theCycle.add(new edge(start, pi[start]));
+            if (tree[v1][i] != (-1) && v1 != i) {
+                if (!cycleStack.isEmpty() && i == cycleStack.peek()) {
+                    continue;
+                }
+                if (cycleStack.isEmpty() || v1 != cycleStack.peek()) { //לבדוק האם מצב שבו צריך להוציא קודרוד מהמחסנית כי הוא לא חלק מהמעגל
+                    cycleStack.push(v1);
+                }
+                flag = findCycle(tree, i, v2, flag);
+                if (i == v2) {
+                    cycleStack.push(v2);
+                    System.out.println("The Cycle is Found!!!");
+                    flag = true;
+                    break;
+                }
+            } else {
+                count++;
             }
-            start = (start++)%5;
-
+            if (count == (tree[v1].length - 1)){
+                cycleStack.pop();
+            }
         }
+        return flag;
     }
 
-
-    Boolean[] visited = new Boolean[V];
-    List<Integer> cycle= new ArrayList<>();
-
-    int[] parent = new int[V];
-
-    void dfs(Boolean[] arr, int start, int[][] tree){
-
-
-        int[][] adjMat =new int[V][V];
-        for (int i = 0; i < V; i++) {
-            for (int j = 0; j < V; j++) {
-                if (tree[i][j]==-1 || i==j)
-                    adjMat[i][j]=0;
-                else
-                    adjMat[i][j]=1;
-            }
-        }
-
-
-
-        Arrays.fill(parent, -1);
-        falseInit(arr);
-        dfsCycle(start, adjMat, parent);
-        falseInit(arr);
-        getCycle(parent, arr, start);
-        System.out.println("the cycle is:");
-        for (edge e:
-             theCycle) {
-            System.out.println(e.v1 + " "+e.v2);
-        }
-
-//        getCycle(parent);
-
-    }
-
-    void falseInit(Boolean[] arr){
-        Arrays.fill(arr, false);
-    }
-
-    void dfsCycle(int start, int[][] tree, int[] parent) {
-
-        visited[start] = true;
-//        parent[start]=-1;
-        for (int i = 0; i < tree[start].length; i++) {
-
-            if (tree[start][i] == 1 && (!visited[i])) {
-                parent[i] = start;
-                tree[start][i] = 2;
-                tree[i][start] = 2;
-                dfsCycle(i, tree, parent);
-            }
-            else if(tree[start][i] == 1 && (visited[i])){
-                parent[i] = start;
-                tree[start][i] = 2;
-                tree[i][start] = 2;
-            }
-
-        }
-
+    void q2(int[][] tree ,int v1, int v2, int weight, Boolean flag){
+        addEdge(tree,v1,v2,weight);
+        findCycle(tree, v1,v2, flag);
     }
 
 
@@ -235,17 +181,17 @@ class MST {
 //                        {-1,-1,8,0,9},
 //                        {-1,40,-1,9,0}
                         {0,6,-1,-1,-1},
-                        {6,0,40,-1,7},
-                        {-1,40,0,8,-1},
-                        {-1,-1,8,0,9},
-                        {-1,7,-1,9,0}
+                        {6,0,5,-1,7},
+                        {-1,5,0,8,-1},
+                        {-1,-1,8,0,40},
+                        {-1,7,-1,40,0}
                 };
 
 
         // Print the solution
         t.primMST(graph);
-        addEdge(t.tree, 1, 4,5,t.pi);
-        t.dfs(t.visited,0,graph);
+//        addEdge(t.tree, 1, 4,5);
+        t.q2(t.tree,3,4,12, t.flag);
     }
 
 }
