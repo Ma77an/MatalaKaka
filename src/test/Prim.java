@@ -7,7 +7,7 @@ import java.lang.*;
 import java.util.Arrays;
 import java.util.Stack;
 
-class MST {
+class Prim {
 
     private static final int V = 20;
     int[][] tree = new int[V][V];
@@ -221,7 +221,7 @@ class MST {
 		| /	 \ |
 		(3)-------(4)
 			9		 */
-        MST t = new MST();
+        Prim t = new Prim();
         int[][] graph = new int[V][V];
 //                {
 ////                        {0, 2, 0, 6, 0},
